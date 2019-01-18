@@ -6,14 +6,12 @@ import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
-import { FetchDataComponent } from './fetch-data/fetch-data.component';
 import { ReminderComponent } from './reminder/reminder.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     NavMenuComponent,
-    FetchDataComponent,
     ReminderComponent
   ],
   imports: [
@@ -22,7 +20,6 @@ import { ReminderComponent } from './reminder/reminder.component';
     FormsModule,
     RouterModule.forRoot([
       { path: '', component: ReminderComponent, pathMatch: 'full' },
-      { path: 'fetch-data', component: FetchDataComponent },
     ])
   ],
   providers: [],

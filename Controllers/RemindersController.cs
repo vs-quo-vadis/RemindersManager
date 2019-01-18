@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RemindersManager.DAL;
+using RemindersManager.Infrastructure.Repositories;
 using RemindersManager.Models;
 
 namespace RemindersManager.Controllers
@@ -13,21 +11,21 @@ namespace RemindersManager.Controllers
     [ApiController]
     public class RemindersController : ControllerBase
     {
-        private readonly ReminderContext _context;
+        private readonly IReminderRepository _repository;
 
-        public RemindersController(ReminderContext context)
+        public RemindersController(
+            IReminderRepository repository
+            )
         {
-            _context = context;
+            _repository = repository;
         }
 
-        // GET: api/Reminders
         [HttpGet("[action]")]
-        public IEnumerable<Reminder> GetReminders()
+        public async Task<List<Reminder>> GetReminders()
         {
-            return _context.Reminders.ToList();
+            return await _repository.GetAllAsync();
         }
 
-        // GET: api/Reminders/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetReminder([FromRoute] Guid id)
         {
@@ -36,7 +34,7 @@ namespace RemindersManager.Controllers
                 return BadRequest(ModelState);
             }
 
-            var reminder = await _context.Reminders.FindAsync(id);
+            var reminder = await _repository.GetAsync(id);
 
             if (reminder == null)
             {
@@ -46,42 +44,24 @@ namespace RemindersManager.Controllers
             return Ok(reminder);
         }
 
-        // PUT: api/Reminders/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutReminder([FromRoute] Guid id, [FromBody] Reminder reminder)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || id != reminder.Id)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != reminder.Id)
-            {
-                return BadRequest();
-            }
+            var updatedRemider = await _repository.UpdateAsync(reminder);
 
-            _context.Entry(reminder).State = EntityState.Modified;
-
-            try
+            if(updatedRemider != null)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ReminderExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return Ok();
             }
 
             return NoContent();
         }
 
-        // POST: api/Reminders
         [HttpPost]
         public async Task<IActionResult> PostReminder([FromBody] Reminder reminder)
         {
@@ -90,13 +70,11 @@ namespace RemindersManager.Controllers
                 return BadRequest(ModelState);
             }
 
-            _context.Reminders.Add(reminder);
-            await _context.SaveChangesAsync();
+            var newReminder = await _repository.AddAsync(reminder);
 
-            return CreatedAtAction("GetReminder", new { id = reminder.Id }, reminder);
+            return CreatedAtAction("GetReminder", new { id = newReminder.Id }, newReminder);
         }
 
-        // DELETE: api/Reminders/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReminder([FromRoute] Guid id)
         {
@@ -105,21 +83,14 @@ namespace RemindersManager.Controllers
                 return BadRequest(ModelState);
             }
 
-            var reminder = await _context.Reminders.FindAsync(id);
+            var reminder = await _repository.RemoveAsync(id);
             if (reminder == null)
             {
                 return NotFound();
             }
 
-            _context.Reminders.Remove(reminder);
-            await _context.SaveChangesAsync();
-
             return Ok(reminder);
         }
 
-        private bool ReminderExists(Guid id)
-        {
-            return _context.Reminders.Any(e => e.Id == id);
-        }
     }
 }

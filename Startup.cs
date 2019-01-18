@@ -1,3 +1,4 @@
+using AuthorsManager.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RemindersManager.DAL;
+using RemindersManager.Infrastructure.Repositories;
 
 namespace RemindersManager
 {
@@ -32,14 +34,17 @@ namespace RemindersManager
                 configuration.RootPath = "ClientApp/dist";
             });
 
-            string conn = Configuration.GetConnectionString("RemindersDatabase");
-            if (conn.Contains("%CONTENTROOTPATH%"))
+            services.AddScoped<IReminderRepository, ReminderRepository>();
+            services.AddScoped<IAuthorRepository, AuthorRepository>();
+
+            string connectionString = Configuration.GetConnectionString("RemindersDatabase");
+            if (connectionString.Contains("%CONTENTROOTPATH%"))
             {
-                conn = conn.Replace("%CONTENTROOTPATH%", _contentRootPath);
+                connectionString = connectionString.Replace("%CONTENTROOTPATH%", _contentRootPath);
             }
 
             services.AddDbContext<ReminderContext>(options =>
-                options.UseSqlServer(conn));
+                options.UseSqlServer(connectionString));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
