@@ -1,0 +1,13 @@
+<p *ngIf="!reminders"><em>Loading...</em></p>
+
+<div *ngIf="reminders" class="list-group">
+  <div *ngFor="let reminder of reminders" class="list-group-item list-group-item-action flex-column align-items-start active">
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1">{{reminder.subject}}</h5>
+      <small>3 days ago</small>
+    </div>
+    <p class="mb-1">{{reminder.notes}}</p>
+    <small>Donec id elit non mi porta.</small>
+  </div>
+
+</div>
