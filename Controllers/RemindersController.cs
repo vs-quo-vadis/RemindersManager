@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using RemindersManager.Infrastructure.Repositories;
 using RemindersManager.Models;
 
@@ -26,8 +27,8 @@ namespace RemindersManager.Controllers
             return await _repository.GetAllAsync();
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetReminder([FromRoute] Guid id)
+        [HttpGet("[action]/{id}")]
+        public async Task<IActionResult> GetReminder([BindRequired, FromRoute] Guid id)
         {
             if (!ModelState.IsValid)
             {
@@ -44,8 +45,8 @@ namespace RemindersManager.Controllers
             return Ok(reminder);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutReminder([FromRoute] Guid id, [FromBody] Reminder reminder)
+        [HttpPut("[action]/{id}")]
+        public async Task<IActionResult> PutReminder([BindRequired, FromRoute] Guid id, [BindRequired, FromRoute] Reminder reminder)
         {
             if (!ModelState.IsValid || id != reminder.Id)
             {
@@ -75,8 +76,8 @@ namespace RemindersManager.Controllers
             return CreatedAtAction("GetReminder", new { id = newReminder.Id }, newReminder);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteReminder([FromRoute] Guid id)
+        [HttpDelete("[action]/{id}")]
+        public async Task<IActionResult> DeleteReminder([BindRequired, FromRoute] Guid id)
         {
             if (!ModelState.IsValid)
             {

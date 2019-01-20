@@ -1,5 +1,8 @@
 import { Component, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Reminder } from '../core/models/Reninder';
+import { ReminderService } from '../core/services/reminder.service';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'reminder',
@@ -7,20 +10,25 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./reminder.component.css']
 })
 export class ReminderComponent {
-  public reminders: Reminder[];
+   reminders$: Observable< Reminder[]>;
 
-  constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
-    http.get<Reminder[]>(baseUrl + 'api/Reminders/GetReminders').subscribe(result => {
-      this.reminders = result;
-    }, error => console.error(error));
+  constructor(private service : ReminderService){
+    this.reminders$ = service.getReminders();
   }
-}
 
-interface Reminder {
-  id: string,
-  subject: string,
-  notes: string,
-  remindDate: Date,
-  isActive: boolean,
-  isCancelled: boolean
+  update(reminderId : string ) : void{
+    alert(reminderId);
+  }
+
+  delete(id : string) : boolean{
+    this.service.deleteReminder(id)
+     .subscribe(resp => {
+       if(resp.id == id){
+         return true;
+       }
+       return false;
+     });
+
+     return false;
+  }
 }
