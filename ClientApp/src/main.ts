@@ -5,21 +5,22 @@ import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
 
 export function getBaseUrl() {
-  return document.getElementsByTagName('base')[0].href;
-  /*if(baseUrl.includes('4200')){
+  let baseUrl = document.getElementsByTagName('base')[0].href;
+
+  if(baseUrl.includes('4200')){
     return 'http://localhost:53860/';
   }else{
     return baseUrl;
-  } */
+  } 
+}
+
+if (environment.production) {
+  enableProdMode();
 }
 
 const providers = [
   { provide: 'BASE_URL', useFactory: getBaseUrl, deps: [] }
 ];
 
-if (environment.production) {
-  enableProdMode();
-}
-
 platformBrowserDynamic(providers).bootstrapModule(AppModule)
-  .catch(err => console.log(err));
+  .catch(err => console.error(err));

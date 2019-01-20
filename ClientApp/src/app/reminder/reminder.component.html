@@ -1,33 +1,23 @@
 <p *ngIf="!reminders$"><em>Loading...</em></p>
 
-<div *ngIf="reminders$" class="list-group">
-  <div (click)="addNew()" class="btn btn-success">Add new reminder</div>
-  <div *ngFor="let reminder of reminders$ | async"  class="list-group-item bg-success list-group-item-action flex-column align-items-start" style="margin-top:10px;">
-    
-    <div class="row">
-      <div class="col-xs-10">
-        <div class="row">
-          <div class="col-xs-8">
-              <h3 class="mb-1" style="margin-top: 5px;">{{reminder.subject}}</h3>
-              <h4 class="mb-1">{{reminder.notes}}</h4>   
-          </div>
-          <div class="col-xs-4">
-            <h5>{{reminder.remindDate}}</h5> 
-             <!--<small>{{reminder.remindDate | amTimeAgo}}</small> -->
-          </div>
-        </div>            
-      </div>
-      <div class="col-xs-2">       
-         <div class="row">
-           <div class="col-sm-6">
-              <div (click)="update(reminder)" class="btn btn-primary">Update</div>
-           </div>
-           <div class="col-sm-6">
-              <div (click)="delete(reminder.id)" class="btn btn-danger">Delete</div>
-           </div>
-         </div>
-      </div>
-    </div>  
-  </div>
+<div *ngIf="reminders$"  class="container">
+  <div (click)="addNew()" class="btn btn-success mt-2 mb-2">Add new reminder</div>
 
+  <div class="row">
+    <div *ngFor="let reminder of reminders$ | async" class="card col-sm text-white bg-success m-2">
+      <div class="card-header">{{reminder.remindDate | amTimeAgo}}</div>
+      <div class="card-body">
+        <h5 class="card-title">{{reminder.subject}}</h5>
+        <p class="card-text">{{reminder.notes}}</p>
+      </div>
+      <div class="card-footer">
+        <button (click)="update(reminder)" class="btn btn-primary">Update</button>
+        <button (click)="delete(reminder.id)" class="btn btn-danger float-right">Delete</button>
+      </div>
+    </div>
+  </div>
 </div>
+
+
+
+
