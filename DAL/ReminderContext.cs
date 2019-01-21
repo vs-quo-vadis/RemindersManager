@@ -14,6 +14,7 @@ namespace RemindersManager.DAL
 
         public virtual DbSet<Reminder> Reminders { get; set; }
         public virtual DbSet<Author> Authors { get; set; }
+        public virtual DbSet<ReminderJob> ReminderJobs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,6 +41,15 @@ namespace RemindersManager.DAL
 
                 entity.Property(e => e.Notes)
                     .HasMaxLength(500);
+            });
+
+            modelBuilder.Entity<ReminderJob>(entity =>
+            {
+                entity.Property(e => e.ReminderId)
+                    .IsRequired();
+
+                entity.Property(e => e.JobId)
+                    .IsRequired();
             });
 
             modelBuilder.Seed();

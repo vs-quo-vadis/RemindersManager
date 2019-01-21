@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using RemindersManager.Infrastructure.Repositories;
@@ -12,19 +13,23 @@ namespace RemindersManager.Controllers
     [ApiController]
     public class RemindersController : ControllerBase
     {
-        private readonly IReminderRepository _repository;
+        private readonly IReminderRepository _reminderRepository;
+        private readonly IReminderJobRepository _reminderJobRepository;
+        //TODO: addunit of work private readonly IUnitOfWork _unitOfWork;
 
         public RemindersController(
-            IReminderRepository repository
+            IReminderRepository reminderRepository,
+            IReminderJobRepository reminderJobRepository
             )
         {
-            _repository = repository;
+            _reminderRepository = reminderRepository;
+            _reminderJobRepository = reminderJobRepository;
         }
 
         [HttpGet("[action]")]
         public async Task<List<Reminder>> GetReminders()
         {
-            return await _repository.GetAllAsync();
+            return await _reminderRepository.GetAllAsync();
         }
 
         [HttpGet("[action]/{id}")]
@@ -35,7 +40,7 @@ namespace RemindersManager.Controllers
                 return BadRequest(ModelState);
             }
 
-            var reminder = await _repository.GetAsync(id);
+            var reminder = await _reminderRepository.GetAsync(id);
 
             if (reminder == null)
             {
@@ -45,25 +50,25 @@ namespace RemindersManager.Controllers
             return Ok(reminder);
         }
 
-        [HttpPut("[action]/{id}")]
-        public async Task<IActionResult> PutReminder([BindRequired, FromRoute] Guid id, [BindRequired, FromRoute] Reminder reminder)
+        [HttpPut("[action]")]
+        public async Task<IActionResult> PutReminder([FromBody] Reminder reminder)
         {
-            if (!ModelState.IsValid || id != reminder.Id)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var updatedRemider = await _repository.UpdateAsync(reminder);
+            var updatedRemider = await _reminderRepository.UpdateAsync(reminder);
 
             if(updatedRemider != null)
             {
-                return Ok();
+                return Ok(updatedRemider);
             }
 
             return NoContent();
         }
 
-        [HttpPost]
+        [HttpPost("[action]")]
         public async Task<IActionResult> PostReminder([FromBody] Reminder reminder)
         {
             if (!ModelState.IsValid)
@@ -71,9 +76,13 @@ namespace RemindersManager.Controllers
                 return BadRequest(ModelState);
             }
 
-            var newReminder = await _repository.AddAsync(reminder);
+            var newReminder = await _reminderRepository.AddAsync(reminder);
+   
+            var jobId = BackgroundJob.Schedule(() => SendEmail(), newReminder.RemindDate);
 
-            return CreatedAtAction("GetReminder", new { id = newReminder.Id }, newReminder);
+            await _reminderJobRepository.AddAsync(new ReminderJob { ReminderId = newReminder.Id, JobId = jobId });
+
+            return Ok(newReminder);
         }
 
         [HttpDelete("[action]/{id}")]
@@ -84,14 +93,68 @@ namespace RemindersManager.Controllers
                 return BadRequest(ModelState);
             }
 
-            var reminder = await _repository.RemoveAsync(id);
+            var reminder = await _reminderRepository.RemoveAsync(id);
             if (reminder == null)
             {
                 return NotFound();
+            }
+            else
+            {
+                await _reminderJobRepository.RemoveAsync(reminder.Id);
             }
 
             return Ok(reminder);
         }
 
+        [HttpGet("[action]/{id}")]
+        public async Task<IActionResult> ActivateReminder([BindRequired, FromRoute] Guid id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var reminder = await _reminderRepository.GetAsync(id);
+            var reminderJob = await _reminderJobRepository.GetByReminderIdAsync(id);
+
+            var jobId = BackgroundJob.Schedule(() => SendEmail(), reminder.RemindDate);
+            await _reminderJobRepository.AddAsync(new ReminderJob
+            {
+                ReminderId = reminder.Id,
+                JobId = jobId
+            });
+
+            reminder.IsActive = true;
+            await _reminderRepository.UpdateAsync(reminder);
+
+            return Ok();
+        }
+
+        [HttpGet("[action]/{id}")]
+        public async Task<IActionResult> DeactivateReminder([BindRequired, FromRoute] Guid id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var reminder = await _reminderRepository.GetAsync(id);
+            var reminderJob = await _reminderJobRepository.GetByReminderIdAsync(id);
+
+            if (!String.IsNullOrEmpty(reminderJob.JobId))
+            {
+                BackgroundJob.Delete(reminderJob.JobId);
+            }
+
+            reminder.IsActive = false;
+            await _reminderRepository.UpdateAsync(reminder);
+
+            return Ok();
+        }
+
+        public void SendEmail()
+        {
+            Console.WriteLine("Send Email");
+        }
     }
 }

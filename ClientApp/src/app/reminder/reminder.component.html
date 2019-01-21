@@ -4,15 +4,29 @@
   <div (click)="addNew()" class="btn btn-success mt-2 mb-2">Add new reminder</div>
 
   <div class="row">
-    <div *ngFor="let reminder of reminders$ | async" class="card col-sm text-white bg-success m-2">
-      <div class="card-header">{{reminder.remindDate | amTimeAgo}}</div>
-      <div class="card-body">
-        <h5 class="card-title">{{reminder.subject}}</h5>
-        <p class="card-text">{{reminder.notes}}</p>
-      </div>
-      <div class="card-footer">
-        <button (click)="update(reminder)" class="btn btn-primary">Update</button>
-        <button (click)="delete(reminder.id)" class="btn btn-danger float-right">Delete</button>
+    <div *ngFor="let reminder of reminders$ | async" class="col-md-4 mb-4">
+      <div class="card text-white mr-2" [className]="reminder.remindDate > currentDate ? 'bg-success' : 'bg-danger'" >
+        <div class="card-header">Execute {{reminder.remindDate | amTimeAgo}}</div>
+        <div class="card-body">
+          <h5 class="card-title">{{reminder.subject}}</h5>
+          <p class="card-text">{{reminder.notes}}</p>
+        </div>
+        <div class="card-footer">
+          <button (click)="update(reminder)" class="btn btn-primary mr-2">
+            <i class="fa fa-pencil"></i>
+          </button>
+          <button (click)="delete(reminder.id)" class="btn btn-warning">
+              <i class="fa fa-trash"></i>
+          </button>
+          <button *ngIf="!reminder.isActive && reminder.remindDate > currentDate" 
+            (click)="activate(reminder.id)" class="btn btn-warning float-right">
+            <i class="fa fa-bell"></i>
+          </button>
+          <button *ngIf="reminder.isActive && reminder.remindDate > currentDate" 
+            (click)="deactivate(reminder.id)" class="btn btn-warning float-right">
+            <i class="fa fa-bell-slash"></i>
+          </button>
+        </div>
       </div>
     </div>
   </div>

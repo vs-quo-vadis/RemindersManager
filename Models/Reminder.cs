@@ -16,7 +16,7 @@ namespace RemindersManager.Models
 
         public bool IsCancelled { get; set; }
 
-        public Guid AuthorId { get; set; }
+        public Guid? AuthorId { get; set; }
         public Author Author { get; set; }
     }
 }

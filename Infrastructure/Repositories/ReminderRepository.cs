@@ -50,12 +50,13 @@ namespace RemindersManager.Infrastructure.Repositories
 
         public async Task<Reminder> RemoveAsync(Guid id)
         {
-            var reminderToDelete = GetAsync(id);
+            var reminderToDelete = await GetAsync(id);
 
             if(reminderToDelete != null)
             {
-                _context.Reminders.Remove(reminderToDelete.Result);
+                _context.Reminders.Remove(reminderToDelete);
                 await _context.SaveChangesAsync();
+                return reminderToDelete;
             }
 
             return null;

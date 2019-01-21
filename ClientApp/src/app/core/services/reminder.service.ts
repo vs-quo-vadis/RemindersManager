@@ -20,7 +20,7 @@ export class ReminderService {
       return this._http.get<Reminder[]>(this.appUrl + 'api/Reminders/GetReminders');
   }  
 
-  getReminderById(id: number) : Observable<Reminder>{  
+  getReminderById(id: string) : Observable<Reminder>{  
       return this._http.get<Reminder>(this.appUrl + "api/Reminders/GetReminders/" + id);
   }  
 
@@ -34,7 +34,15 @@ export class ReminderService {
 
   deleteReminder(id : string) : Observable<Reminder> {  
       return this._http.delete<Reminder>(this.appUrl + "api/Reminders/DeleteReminder/" + id); 
-  }  
+  } 
+  
+  activateReminder(id : string) { 
+    return this._http.get<void>(this.appUrl + 'api/Reminders/ActivateReminder/' + id);
+  }
+
+  deactivateReminder(id : string) { 
+    return this._http.get<void>(this.appUrl + 'api/Reminders/DeactivateReminder/' + id);
+  }
 
   errorHandler(error: Response) {  
       console.log(error);  

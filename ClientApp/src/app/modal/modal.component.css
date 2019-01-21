@@ -1,0 +1,10 @@
+#notes{
+    max-height: 180px;
+    min-height: 40px;
+}
+
+#isActive{
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+}

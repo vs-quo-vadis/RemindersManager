@@ -37,7 +37,7 @@ namespace RemindersManager.Migrations
                     b.ToTable("Authors");
 
                     b.HasData(
-                        new { Id = new Guid("7e5ed0cc-4b68-411d-9a65-07b17bded6fe"), Email = "franz.kafka@gmail.com", Name = "Franz Kafka" }
+                        new { Id = new Guid("3c1c0203-b206-405f-a33f-956724992e41"), Email = "franz.kafka@gmail.com", Name = "Franz Kafka" }
                     );
                 });
 
@@ -46,7 +46,7 @@ namespace RemindersManager.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid>("AuthorId");
+                    b.Property<Guid?>("AuthorId");
 
                     b.Property<bool>("IsActive");
 
@@ -68,16 +68,30 @@ namespace RemindersManager.Migrations
                     b.ToTable("Reminders");
 
                     b.HasData(
-                        new { Id = new Guid("98adeabd-ed7a-4a39-a14d-a1e4c8bed9a8"), AuthorId = new Guid("7e5ed0cc-4b68-411d-9a65-07b17bded6fe"), IsActive = true, IsCancelled = false, Notes = "Write clean code!", RemindDate = new DateTime(2019, 1, 18, 6, 0, 0, 0, DateTimeKind.Unspecified), Subject = "Finish interview task" }
+                        new { Id = new Guid("12128e4b-4e8f-449b-98c1-8fc6b7c9b59b"), AuthorId = new Guid("3c1c0203-b206-405f-a33f-956724992e41"), IsActive = true, IsCancelled = false, Notes = "Write clean code!", RemindDate = new DateTime(2019, 1, 18, 6, 0, 0, 0, DateTimeKind.Unspecified), Subject = "Finish interview task" }
                     );
+                });
+
+            modelBuilder.Entity("RemindersManager.Models.ReminderJob", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("JobId")
+                        .IsRequired();
+
+                    b.Property<Guid>("ReminderId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReminderJobs");
                 });
 
             modelBuilder.Entity("RemindersManager.Models.Reminder", b =>
                 {
                     b.HasOne("RemindersManager.Models.Author", "Author")
                         .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("AuthorId");
                 });
 #pragma warning restore 612, 618
         }

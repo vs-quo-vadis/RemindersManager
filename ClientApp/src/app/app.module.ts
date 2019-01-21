@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { RouterModule } from '@angular/router';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
@@ -12,6 +13,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { MomentModule } from 'angular2-moment';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ModalComponent } from './modal/modal.component';
+import { DatePipe } from '@angular/common';
 
 
 @NgModule({
@@ -26,6 +28,7 @@ import { ModalComponent } from './modal/modal.component';
     BrowserAnimationsModule,
     HttpClientModule,
     FormsModule,
+    ReactiveFormsModule,
     MomentModule,
     NgbModule.forRoot(),
     RouterModule.forRoot([
@@ -35,7 +38,10 @@ import { ModalComponent } from './modal/modal.component';
   entryComponents : [
     ModalComponent
   ],
-  providers: [ReminderService],
+  providers: [
+    ReminderService,
+    DatePipe
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

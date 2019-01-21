@@ -1,4 +1,5 @@
 using AuthorsManager.Infrastructure.Repositories;
+using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,7 @@ namespace RemindersManager
 
             services.AddScoped<IReminderRepository, ReminderRepository>();
             services.AddScoped<IAuthorRepository, AuthorRepository>();
+            services.AddScoped<IReminderJobRepository, ReminderJobRepository>();            
 
             string connectionString = Configuration.GetConnectionString("RemindersDatabase");
             if (connectionString.Contains("%CONTENTROOTPATH%"))
@@ -45,6 +47,15 @@ namespace RemindersManager
 
             services.AddDbContext<ReminderContext>(options =>
                 options.UseSqlServer(connectionString));
+
+            services.AddHangfire(options => options.UseSqlServerStorage(connectionString));
+
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,18 +70,20 @@ namespace RemindersManager
                 app.UseExceptionHandler("/Error");
             }
 
-            app.UseCors(builder =>
-                builder.WithOrigins("http://localhost:4200"));
+            app.UseCors("MyPolicy");
 
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
+            app.UseHangfireServer();
+            app.UseHangfireDashboard();
+
             app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller}/{action=Index}/{id?}");
-            });
+                {
+                    routes.MapRoute(
+                        name: "default",
+                        template: "{controller}/{action=Index}/{id?}");
+                });
 
             app.UseSpa(spa =>
             {
