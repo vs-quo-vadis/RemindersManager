@@ -14,6 +14,7 @@ import { MomentModule } from 'angular2-moment';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ModalComponent } from './modal/modal.component';
 import { DatePipe } from '@angular/common';
+import { ToastrModule } from 'ngx-toastr';
 
 
 @NgModule({
@@ -31,6 +32,7 @@ import { DatePipe } from '@angular/common';
     ReactiveFormsModule,
     MomentModule,
     NgbModule.forRoot(),
+    ToastrModule.forRoot(),
     RouterModule.forRoot([
       { path: '', component: ReminderComponent, pathMatch: 'full' },
     ])

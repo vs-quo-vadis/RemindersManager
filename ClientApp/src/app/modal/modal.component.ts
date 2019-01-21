@@ -3,7 +3,6 @@ import { FormBuilder, Validators } from '@angular/forms';
 
 import { NgbActiveModal, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { Reminder } from '../core/models/Reninder';
-import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-modal',

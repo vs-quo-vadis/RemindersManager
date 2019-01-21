@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalComponent } from '../modal/modal.component';
 import { DatePipe } from '@angular/common';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'reminder',
@@ -21,7 +22,8 @@ export class ReminderComponent implements OnInit {
   constructor(
     private service : ReminderService,
     private modalService: NgbModal,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private toastr: ToastrService
     ){
   }
 
@@ -40,6 +42,7 @@ export class ReminderComponent implements OnInit {
 
       this.service.saveReminder(receivedEntry).subscribe(resp => {
         if(resp){
+          this.toastr.success('Remainder created');
           this.service.getReminders().subscribe((resp) => {
             this.reminders$ = of(resp);
           });
@@ -61,6 +64,7 @@ export class ReminderComponent implements OnInit {
 
       this.service.updateReminder(receivedEntry).subscribe(resp => {
         if(resp){
+          this.toastr.success('Remainder updated');
           this.service.getReminders().subscribe((resp) => {
             this.reminders$ = of(resp);
           });
@@ -77,7 +81,8 @@ export class ReminderComponent implements OnInit {
         this.service.getReminders().subscribe((resp) => {
           this.reminders$ = of(resp);
         });
-         return true;
+        this.toastr.success('Remainder deleted');
+        return true;
        }
        return false;
      });
@@ -88,6 +93,7 @@ export class ReminderComponent implements OnInit {
   activate(id : string){
     this.service.activateReminder(id).subscribe(() => {
       this.service.getReminders().subscribe((resp) => {
+        this.toastr.success('Remainder activated');
         this.reminders$ = of(resp);
       });
     });
@@ -96,6 +102,7 @@ export class ReminderComponent implements OnInit {
   deactivate(id : string){
     this.service.deactivateReminder(id).subscribe(() =>{
       this.service.getReminders().subscribe((resp) => {
+        this.toastr.success('Remainder deactivated');
         this.reminders$ = of(resp);
       });
     });
